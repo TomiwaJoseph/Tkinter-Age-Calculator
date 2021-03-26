@@ -1,5 +1,5 @@
 from tkinter import *
-from tkcalendar import DateEntry
+from tkcalendar import DateEntry, Calendar
 from datetime import datetime
 from tkinter.scrolledtext import ScrolledText
 
@@ -11,7 +11,7 @@ class Switch(root):
     def __init__(self):
         root.__init__(self)
         self._frame = None
-        self.switch_frame(AgeCalculator)
+        self.switch_frame(StartPage)
 
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
@@ -36,14 +36,13 @@ class StartPage(Frame):
         Button(self.master,text='Start',font='montserrat 18',bd=0,fg='yellow',bg='#222',command=lambda:self.master.switch_frame(AgeCalculator)).place(x=155,y=150)
 
 
-
 class AgeCalculator(Frame):
     def __init__(self,root):
         Frame.__init__(self,root)
         Frame.configure(self,bg='#222')
         self.root = root
-        self.root.title('Intro Page')
-        self.root.geometry('580x330')
+        self.root.title('Main Page')
+        self.root.geometry('580x340')
         self.root.resizable(0,0)
 
         Label(text='Input',bg='#222',fg='#fff',font='montserrat 16').place(x=30,y=20)
@@ -51,30 +50,72 @@ class AgeCalculator(Frame):
 
         self.main_frame = Frame(borderwidth=2,relief='ridge',width=220,height=245,bg='#fff')
         self.main_frame.place(x=20,y=60)
-        Label(self.main_frame,text='Date of Birth:',bg='#fff',fg='teal',font='montserrat 12').place(x=30,y=20)
+        self.result_frame = Frame(borderwidth=2,relief='ridge',width=300,height=245,bg='#fff')
+        self.result_frame.place(x=260,y=60)
+
+        Label(self.main_frame,text='Date of Birth:',bg='#fff',fg='teal',font='montserrat 12').place(x=50,y=20)
         self.dob_date = DateEntry(self.main_frame,width=12, background='teal',
-                font='montserrat 12',foreground='white',borderwidth=5)
+                font='montserrat 12',foreground='white',borderwidth=5,justify='center')
         self.dob_date.place(x=30,y=50)
 
-        Label(self.main_frame,text='Target Date:',bg='#fff',fg='teal',font='montserrat 12').place(x=30,y=90)
+        Label(self.main_frame,text='Target Date:',bg='#fff',fg='teal',font='montserrat 12').place(x=50,y=90)
         self.target_date = DateEntry(self.main_frame,width=12, background='teal',
-                font='montserrat 12',foreground='white',borderwidth=5)
+                font='montserrat 12',foreground='white',borderwidth=5,justify='center')
         self.target_date.place(x=30,y=120)
 
         Button(self.main_frame,text='Calculate',fg='#fff',bg='teal',width=13,bd=0,
             font='montserrat 14',command=self.calculate_it).place(x=27,y=160)
 
-        self.result_frame = Frame(borderwidth=2,relief='ridge',width=300,height=245,bg='#fff')
-        self.result_frame.place(x=260,y=60)
 
-        self.results = Text(self.result_frame,fg='#fff',bg='#444',font='montserrat 14',
-            width=22,height=9)
-        self.results.place(x=3,y=2)
+        self.results = Text(self.result_frame,fg='#fff',bg='#444',font='montserrat 18',
+            width=18,height=7)
+        self.results.place(x=3,y=3)
+
+    #     self.cal = DateEntry(font='candara 14')
+    #     self.cal.pack()
+    #     Button(text='test', command=self.test).pack()
+    #     self.results = Label()
+
+    # def test(self):
+    #     self.results.config(text=self.cal.get_date())
+    #     self.results.pack()
 
     def calculate_it(self):
+        self.results.delete(1.0, END)
         dob_date = self.dob_date.get_date()
         target_date = self.target_date.get_date()
-        self.results.insert(END, 'something')
+
+        splitted_dob = str(dob_date).split('-')
+        splitted_target = str(target_date).split('-')
+
+        a,b,c = int(splitted_dob[0]), int(splitted_dob[1]), int(splitted_dob[2])
+        x,y,z = int(splitted_target[0]), int(splitted_target[1]), int(splitted_target[2])
+
+        diff = datetime(x,y,z) - datetime(a,b,c)
+        total_secs = int(diff.total_seconds())
+
+        minute = total_secs/60
+        hours = minute/60
+        days = hours/24
+        weeks = days/7
+        months = weeks/4
+        years = days/356.25
+
+        y = 'years' if years > 1 else 'year'
+        mo = 'months' if months > 1 else 'month'
+        w = 'weeks' if weeks > 1 else 'week'
+        d = 'days' if days > 1 else 'day'
+        h = 'hours' if hours > 1 else 'hour'
+        mi = 'minutes' if minute > 1 else 'minute'
+        se = 'seconds' if total_secs > 1 else 'second'
+
+        self.results.insert(END, f' {round(years, 2)} {y}\n')
+        self.results.insert(END, f' {round(months, 2)} {mo}\n')
+        self.results.insert(END, f' {round(weeks, 2)} {w}\n')
+        self.results.insert(END, f' {round(days, 2)} {d}\n')
+        self.results.insert(END, f' {round(hours, 2)} {h}\n')
+        self.results.insert(END, f' {round(minute, 2)} {mi}\n')
+        self.results.insert(END, f' {total_secs} {se}\n')
 
 if __name__ == '__main__':
     app = Switch()
